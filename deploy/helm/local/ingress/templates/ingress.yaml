@@ -1,0 +1,53 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: service
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      if ($http_origin ~* "^https?:\/\/(.*?frontiers\.kbstar\.com)$") {
+        add_header "Access-Control-Allow-Origin" "$http_origin" always;
+        add_header "Access-Control-Allow-Methods" "GET, PUT, POST, OPTIONS" always;
+        add_header "Access-Control-Allow-Headers" "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization" always;
+        add_header "Access-Control-Expose-Headers" "Content-Length,Content-Range" always;
+        add_header "Access-Control-Allow-Credentials" "true" always;
+      }
+spec:
+  rules:
+    - host: {{ .Values.frontiers.host }}
+      http:
+        paths:
+          - path: {{ .Values.frontiers.backend.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.frontiers.backend.name }}
+                port:
+                  number: {{ .Values.frontiers.backend.port }}
+          - path: {{ .Values.frontiers.frontend.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.frontiers.frontend.name }}
+                port:
+                  number: {{ .Values.frontiers.frontend.port }}
+    - host: {{ .Values.backend.host }}
+      http:
+        paths:
+          - path: {{ .Values.backend.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.backend.name }}
+                port:
+                  number: {{ .Values.backend.port }}
+    - host: {{ .Values.mock.host }}
+      http:
+        paths:
+          - path: {{ .Values.mock.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.mock.name }}
+                port:
+                  number: {{ .Values.mock.port }}

@@ -1,0 +1,7 @@
+{
+  "url": {
+    "main": "/",
+    "future_product_list": "/product/future",
+    "future_trade_list": "/trade/future"
+  }
+}

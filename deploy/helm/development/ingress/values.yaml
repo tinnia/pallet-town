@@ -1,0 +1,15 @@
+backend:
+  host: api.frontiers.kbstar.com
+  name: frontiers-backend
+  path: /
+  port: 80
+frontend:
+  host: frontiers.kbstar.com
+  name: frontiers-frontend
+  path: /
+  port: 80
+mock:
+  host: mock.frontiers.kbstar.com
+  name: frontiers-mock
+  path: /
+  port: 80

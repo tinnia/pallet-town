@@ -1,0 +1,9 @@
+dependencies:
+- name: frontiers-redis
+  repository: file://../redis
+  version: 0.1.0
+- name: frontiers-mock
+  repository: file://../frontiers-mock
+  version: 0.1.0
+digest: sha256:29c06adb84cd6ab341eb5c16b0d5b9e7e2d8998e22a02a73bce066d9876265a9
+generated: "2023-01-19T15:23:46.082533+09:00"

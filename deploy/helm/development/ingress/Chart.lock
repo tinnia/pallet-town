@@ -1,0 +1,6 @@
+dependencies:
+- name: frontiers-frontend
+  repository: file://../frontiers-frontend
+  version: 0.1.0
+digest: sha256:c07c596286350f2c8c02819c9218e54bcfc21da45bbef594c2fef89afc49d06e
+generated: "2023-01-19T15:23:46.210862+09:00"

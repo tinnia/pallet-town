@@ -1,0 +1,4 @@
+name: frontiers-frontend
+image:
+  source: frontiers-frontend
+  version: latest

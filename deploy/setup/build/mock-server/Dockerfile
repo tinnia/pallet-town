@@ -1,0 +1,12 @@
+FROM node:16-alpine3.15
+WORKDIR /app
+
+ARG FRONTEND_URL
+ENV FRONTEND_URL=$FRONTEND_URL
+ENV FORCE_COLOR=1
+
+COPY . .
+RUN yarn
+
+EXPOSE 8080
+CMD [ "node", "index.js" ]

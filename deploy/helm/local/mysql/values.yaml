@@ -1,0 +1,9 @@
+name: mysql
+image:
+  version: 8.0.31
+url: jdbc:mysql://mysql:3306/frontiers
+driver-class-name: com.mysql.cj.jdbc.Driver
+credential:
+  username: cm9vdA== # root
+  password: cGFzc3dvcmQ= # password
+

@@ -1,0 +1,4 @@
+name: frontiers-mock
+image:
+  source: frontiers-mock
+  version: latest

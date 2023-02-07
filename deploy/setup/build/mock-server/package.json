@@ -1,0 +1,25 @@
+{
+  "name": "mock-server",
+  "version": "0.0.1",
+  "description": "Mocker server boilerplate",
+  "main": "index.js",
+  "type": "module",
+  "repository": "https://github.com/yhyungsuk/mock-server-boilerplate",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "lint": "npx prettier --write ",
+    "postinstall": "cd ../../.. && husky install local/mock-server/.husky"
+  },
+  "dependencies": {
+    "body-parser": "1.20.0",
+    "chalk": "5.0.1",
+    "dotenv": "^16.0.3",
+    "express": "4.18.1"
+  },
+  "devDependencies": {
+    "husky": "8.0.1",
+    "prettier": "2.7.1",
+    "pretty-quick": "3.1.3"
+  }
+}

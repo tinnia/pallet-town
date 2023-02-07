@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sso
+data:
+  authentication-redirect-url: http://mock.frontiers.kbstar.com
+  authentication-server: http://frontiers-mock
+  authorization-server: http://frontiers-mock
+  authentication-agent-id: KEJ_In-House_Dev4
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eai
+data:
+  back-office-server: http://mock.frontiers.kbstar.com
+  anti-corruption-layer-server: http://mock.frontiers.kbstar.com

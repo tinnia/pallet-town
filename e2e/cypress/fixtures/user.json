@@ -1,0 +1,25 @@
+{
+  "id": "S123123",
+  "name": "권미소",
+  "traderId": "1919",
+  "location": "Asia/Seoul",
+  "roleList": ["IT_ADMIN_GROUP", "IT_GENERAL_GROUP"],
+  "favoriteUser": {
+    "traderId": "1919",
+    "traderName": "권미소",
+    "bookList": [
+      {
+        "code": "BN09_FITRA1",
+        "location": "Asia/Seoul"
+      },
+      {
+        "code": "LA01_LASMON",
+        "location": "America/Los_Angeles"
+      },
+      {
+        "code": "LN01_LDNBRN",
+        "location": "Europe/London"
+      }
+    ]
+  }
+}

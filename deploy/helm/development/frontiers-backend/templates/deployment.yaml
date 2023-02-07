@@ -1,0 +1,138 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+  labels:
+    app: {{ .Values.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      labels:
+        app: {{ .Values.name }}
+    spec:
+      containers:
+        - name: {{ .Values.name }}
+          image: {{ .Values.image.source }}:{{ .Values.image.version }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: dev
+            - name: SPRING_SERVER_SERVLET_SESSION_COOKIE_HTTPONLY
+              value: "false"
+
+            - name: SPRING_SQL_INIT_MODE
+              value: embedded
+            - name: SPRING_SQL_INIT_SCHEMALOCATIONS
+              value: classpath:db/schema.sql
+            - name: SPRING_SQL_INIT_DATALOCATIONS
+              value: classpath:db/data.sql
+
+            - name: SPRING_SESSION_STORETYPE
+              value: redis
+
+            - name: SPRING_JPA_SHOWSQL
+              value: "true"
+            - name: SPRING_JPA_DEFERDATASOURCEINITIALIZATION
+              value: "true"
+            - name: SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULTBATCHFETCHSIZE
+              value: "150"
+
+            - name: FRONTIERS_SYSTEMMODE
+              value: KEE_D
+            - name: FRONTIERS_REDIRECTURL
+              value: http://frontiers.kbstar.com
+
+            - name: SERVER_SERVLET_SESSION_COOKIE_DOMAIN
+              value: frontiers.kbstar.com
+            # REDIS ========================================
+            - name: SPRING_REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: redis
+                  key: host
+            - name: SPRING_REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: redis
+                  key: port
+
+            - name: SPRING_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis
+                  key: password
+            # MYSQL ========================================
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql
+                  key: url
+            - name: SPRING_DATASOURCE_DRIVERCLASSNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql
+                  key: driver-class-name
+
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mysql
+                  key: username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql
+                  key: password
+            # SSO ==========================================
+            - name: SSO_AUTHENTICATIONREDIRECTURL
+              valueFrom:
+                configMapKeyRef:
+                  name: sso
+                  key: authentication-redirect-url
+            - name: SSO_AUTHENTICATIONSERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: sso
+                  key: authentication-server
+            - name: SSO_AUTHORIZATIONSERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: sso
+                  key: authorization-server
+            - name: SSO_AUTHENTICATIONAGENTID
+              valueFrom:
+                configMapKeyRef:
+                  name: sso
+                  key: authentication-agent-id
+            # EAI ==========================================
+            - name: EAI_BACKOFFICESERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: eai
+                  key: back-office-server
+            - name: EAI_ANTICORRUPTIONLAYERSERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: eai
+                  key: anti-corruption-layer-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.name }}
+spec:
+  selector:
+    app: {{ .Values.name }}
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

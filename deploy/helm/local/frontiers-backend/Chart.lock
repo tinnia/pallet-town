@@ -1,0 +1,6 @@
+dependencies:
+- name: frontiers-redis
+  repository: file://../redis
+  version: 0.1.0
+digest: sha256:b7d4cf817d1d656800d2e3615073b9129890c6ddfa8799f35985920fcbbe7a2a
+generated: "2023-02-06T09:58:59.73655+09:00"

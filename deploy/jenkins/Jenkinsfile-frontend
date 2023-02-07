@@ -1,0 +1,110 @@
+def FAILED_STAGE
+def get_commit_msg(){
+    script {
+        return sh(script : "git show -s --format=%B ${env.GIT_COMMIT}", returnStdout: true).trim()
+    }
+}
+def get_commit_author(){
+    script {
+        return sh(script : "git --no-pager show -s --format=%an ${env.GIT_COMMIT}", returnStdout: true).trim()
+    }
+}
+def get_commit_hash() {
+    script {
+        return sh(script : "git rev-parse --short HEAD", returnStdout: true).trim()
+    }
+}
+
+pipeline {
+    agent any
+    environment {
+        GIT_COMMIT_HASH = get_commit_hash()
+        GIT_COMMIT_AUTHOR = get_commit_author()
+        GIT_COMMIT_MESSAGE = get_commit_msg()
+    }
+    stages {
+        stage('=== start ===') {
+            steps {
+                slackSend (
+                    channel: '#jenkins-notification',
+                    color: '#FFFF00',
+                    message: "🚀 [${env.JOB_NAME} build #${env.BUILD_NUMBER}] `#${GIT_COMMIT_HASH}: ${GIT_COMMIT_MESSAGE}` by ${GIT_COMMIT_AUTHOR}"
+                )
+            }
+        }
+        stage('=== tests ===') {
+            steps {
+                script { FAILED_STAGE=env.STAGE_NAME }
+                dir('frontend') {
+                    sh 'docker build --file Dockerfile-test .'
+                }
+            }
+        }
+        stage('=== build ===') {
+            steps {
+                script { FAILED_STAGE=env.STAGE_NAME }
+                dir('frontend') {
+                    sh 'docker build --build-arg MODE=dev --build-arg BACKEND_URL=/api --output . .'
+                    sh 'cp -R ./dist ../deploy/setup/build/frontend/tmp'
+                }
+                dir('deploy/setup/build/frontend') {
+                    sh '''
+                        eval "$(minikube docker-env)"
+                        docker build -t frontiers-frontend .
+                    '''
+                }
+            }
+        }
+        stage('=== deploy ===') {
+            steps {
+                script { FAILED_STAGE=env.STAGE_NAME }
+                dir('deploy') {
+                    sh '''
+                        eval "$(minikube docker-env)"
+                        helm upgrade frontiers-frontend ./helm/local/frontiers-frontend
+                        docker system prune -f
+                    '''
+                }
+            }
+        }
+        stage('=== e2e ===') {
+            steps {
+                script { FAILED_STAGE=env.STAGE_NAME }
+                script {
+                    sh '''
+                        docker stop cypress || true
+                        docker rm --force cypress || true
+                    '''
+                }
+                dir('e2e') {
+                    sh '''
+                       docker run --network host --entrypoint="" -v $(pwd):/e2e -e CYPRESS_VIDEO=true --name=cypress cypress/included:12.0.1 /bin/bash -c "cd e2e && cypress run --browser=chrome"
+                    '''
+                }
+            }
+        }
+    }
+    post {
+        success {
+            slackSend (
+                channel: '#jenkins-notification',
+                color: '#00FF00',
+                message: """
+🙌 [${env.JOB_NAME} #${env.BUILD_NUMBER}] Build successful.
+`${env.SERVICE_DOMAIN}`
+`${env.SERVICE_DOMAIN_IP}`
+"""
+            )
+        }
+        failure {
+            slackSend (
+                channel: '#jenkins-notification',
+                color: '#FF0000',
+                message: "🤦 [${env.JOB_NAME} #${env.BUILD_NUMBER}] Build failed while running the following stage: `${FAILED_STAGE}`"
+            )
+        }
+        cleanup {
+            sh 'docker image prune --force'
+        }
+    }
+}

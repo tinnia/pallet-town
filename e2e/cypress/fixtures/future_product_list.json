@@ -1,0 +1,42 @@
+[
+  {
+    "productId": 68289644,
+    "productCode": "KR4101TC0008",
+    "productName": "코스피200 F 202312",
+    "maturityDate": "2023-12-14",
+    "contractSize": 250000.00,
+    "currency": "KRW",
+    "updatedDate": 1667370000063,
+    "updatedUser": "권미소"
+  },
+  {
+    "productId": 68326377,
+    "productCode": "KR4101T90003",
+    "productName": "코스피200 F 202309",
+    "maturityDate": "2023-09-08",
+    "contractSize": 250000.00,
+    "currency": "KRW",
+    "updatedDate": 1667370000062,
+    "updatedUser": "권미소"
+  },
+  {
+    "productId": 68269873,
+    "productCode": "KR4101T30009",
+    "productName": "코스피200 F 202303",
+    "maturityDate": "2023-03-09",
+    "contractSize": 250000.00,
+    "currency": "KRW",
+    "updatedDate": 1667370000061,
+    "updatedUser": "권미소"
+  },
+  {
+    "productId": 68269833,
+    "productCode": "KR4101T60006",
+    "productName": "코스피200 F 202306",
+    "maturityDate": "2023-06-08",
+    "contractSize": 250000.00,
+    "currency": "KRW",
+    "updatedDate": 1667370000060,
+    "updatedUser": "권미소"
+  }
+]

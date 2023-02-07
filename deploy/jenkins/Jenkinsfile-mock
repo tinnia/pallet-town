@@ -1,0 +1,81 @@
+def FAILED_STAGE
+def get_commit_msg(){
+    script {
+        return sh(script : "git show -s --format=%B ${env.GIT_COMMIT}", returnStdout: true).trim()
+    }
+}
+def get_commit_author(){
+    script {
+        return sh(script : "git --no-pager show -s --format=%an ${env.GIT_COMMIT}", returnStdout: true).trim()
+    }
+}
+def get_commit_hash() {
+    script {
+        return sh(script : "git rev-parse --short HEAD", returnStdout: true).trim()
+    }
+}
+
+pipeline {
+    agent any
+    environment {
+        GIT_COMMIT_HASH = get_commit_hash()
+        GIT_COMMIT_AUTHOR = get_commit_author()
+        GIT_COMMIT_MESSAGE = get_commit_msg()
+    }
+    stages {
+        stage('=== start ===') {
+            steps {
+                slackSend (
+                    channel: '#jenkins-notification',
+                    color: '#FFFF00',
+                    message: "🚀 [${env.JOB_NAME} build #${env.BUILD_NUMBER}] `#${GIT_COMMIT_HASH}: ${GIT_COMMIT_MESSAGE}` by ${GIT_COMMIT_AUTHOR}"
+                )
+            }
+        }
+        stage('=== build ===') {
+            steps {
+                script { FAILED_STAGE=env.STAGE_NAME }
+                dir('deploy/setup/build/mock-server') {
+                    sh '''
+                        eval "$(minikube docker-env)"
+                        docker build -t frontiers-mock --build-arg FRONTEND_URL=//frontiers.kbstar.com .
+                    '''
+                }
+            }
+        }
+        stage('=== deploy===') {
+            steps {
+                script { FAILED_STAGE=env.STAGE_NAME }
+                dir('deploy') {
+                    sh '''
+                        eval "$(minikube docker-env)"
+                        helm upgrade frontiers-mock ./helm/local/frontiers-mock
+                        docker system prune -f
+                    '''
+                }
+            }
+        }
+    }
+    post {
+        success {
+            slackSend (
+                channel: '#jenkins-notification',
+                color: '#00FF00',
+                message: """
+🙌 [${env.JOB_NAME} #${env.BUILD_NUMBER}] Build successful.
+`${env.SERVICE_DOMAIN}`
+"""
+            )
+        }
+        failure {
+            slackSend (
+                channel: '#jenkins-notification',
+                color: '#FF0000',
+                message: "🤦 [${env.JOB_NAME} #${env.BUILD_NUMBER}] Build failed while running the following stage: `${FAILED_STAGE}`"
+            )
+        }
+        cleanup {
+            sh 'docker image prune --force'
+        }
+    }
+}

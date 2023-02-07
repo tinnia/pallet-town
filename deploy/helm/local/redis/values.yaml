@@ -1,0 +1,5 @@
+name: redis
+image:
+  version: 7.0
+credential:
+  password: cGFzc3dvcmQ= # password

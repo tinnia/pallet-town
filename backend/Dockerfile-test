@@ -1,0 +1,14 @@
+# Maven Build
+FROM maven:3.8.6-jdk-8
+WORKDIR /build
+
+COPY pom.xml .
+COPY ./tmp/maven-dependencies/ ./tmp/
+RUN cat ./tmp/m2.tar.gz.part* > ./tmp/m2.tar.gz
+RUN cp ./tmp/settings.xml ./settings.xml
+RUN sh ./tmp/load.sh ./.m2
+RUN rm -rf tmp
+
+COPY src ./src
+
+RUN mvn verify -s ./settings.xml

@@ -1,0 +1,46 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: service
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      if ($http_origin ~* "^https?:\/\/(.*?frontiers\.kbstar\.com)$") {
+        add_header "Access-Control-Allow-Origin" "$http_origin" always;
+        add_header "Access-Control-Allow-Methods" "GET, PUT, POST, OPTIONS" always;
+        add_header "Access-Control-Allow-Headers" "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization" always;
+        add_header "Access-Control-Expose-Headers" "Content-Length,Content-Range" always;
+        add_header "Access-Control-Allow-Credentials" "true";
+      }
+spec:
+  rules:
+    - host: {{ .Values.backend.host }}
+      http:
+        paths:
+          - path: {{ .Values.backend.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.backend.name }}
+                port:
+                  number: {{ .Values.backend.port }}
+    - host: {{ .Values.frontend.host }}
+      http:
+        paths:
+          - path: {{ .Values.frontend.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.frontend.name }}
+                port:
+                  number: {{ .Values.frontend.port }}
+    - host: {{ .Values.mock.host }}
+      http:
+        paths:
+          - path: {{ .Values.mock.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.mock.name }}
+                port:
+                  number: {{ .Values.mock.port }}
